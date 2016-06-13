@@ -14,14 +14,7 @@ struct serial_port_config sp_config= { //initilizing config data
     
 };
 
-int init_port(struct sp_port ** multiwii){    
-    
-    //set up configs
-    struct sp_port_config * mconfig;
-    int config_return = init_configs(&mconfig);
-    if(config_return != 0){
-        return config_return;
-    }
+int init_port(struct sp_port ** multiwii, struct sp_port_config * mconfig){    
 
     //access multiwii port
     enum sp_return port_status = sp_get_port_by_name(sp_config.port_name, multiwii);   
@@ -34,7 +27,7 @@ int init_port(struct sp_port ** multiwii){
     port_status = sp_open(*multiwii, SP_MODE_READ_WRITE);//open
     if(port_status != 0){
         printf("UNABLE TO OPEN PORT. HALTING"); 
-        return 1;
+        return 2;
     }
     
     //set configuration to port
@@ -42,16 +35,20 @@ int init_port(struct sp_port ** multiwii){
     if(port_status != 0){
         printf("ERROR sp_set_config. HALTING \n");  
         printf("ERROR: %d", port_status);
-        return 1;
+        return 3;
     }
 
-    sp_free_config(mconfig);
     //No errors!
     return 0;
 }
 
 int close_port(struct sp_port * multiwii){
-    sp_close(multiwii);
+    int close_return = sp_close(multiwii);
+    if(close_return!=0){
+        printf("error duing sp_close");
+        printf("error code: %d",close_return);
+        return 1;
+    }
     sp_free_port(multiwii);
     return 0;
 }
