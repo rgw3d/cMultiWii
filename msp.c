@@ -50,7 +50,7 @@ void read_RAW_RC(struct sp_port * multiwii, struct msp_header * msp_head){
     const char *types[] = {"ROLL","PITCH","YAW","THROTTLE","AUX1","AUX2","AUX3","AUX4"};
     i =0;
     for(;i<length; i++){
-        printf("\t%s: %d\n",types[i],results[i]);
+        printf("\t%s: %d",types[i],results[i]);
     }
     printf("\tCRC: %d\n",crc);
 
@@ -71,7 +71,7 @@ void send_request(struct sp_port * multiwii, uint8_t code_in){
     if(a<0 || b<0 || c<0 ||d<0 ||e<0||f<0){
         printf("writing error");
     }
-    printf("SEND:\t$M<, size %d, command %d, crc %d\n", size, command, crc);
+    //printf("SEND:\t$M<, size %d, command %d, crc %d\n", size, command, crc);
     //sp_drain(multiwii);//wait for data to be sent
 }
 
@@ -84,7 +84,7 @@ void send_RAW_RC(struct sp_port * multiwii, uint16_t * data){
     int i = 0;
     for(; i<8;i++){
         crc ^= (data[i]>>8);
-        crc ^= (data[i] & 0x0f);
+        crc ^= (data[i] & 0x00ff);
     }
 
     int a = sp_blocking_write(multiwii,(char *)"$",1,0);
@@ -94,7 +94,7 @@ void send_RAW_RC(struct sp_port * multiwii, uint16_t * data){
     int e = sp_blocking_write(multiwii, &command, 1,0);
     int f = 0;
     for(i = 0; i< 8; i++){
-        f = sp_blocking_write(multiwii,&data[i],2,0);
+        f = sp_blocking_write(multiwii,&(data[i]),2,0);
         if (f<0)
             break;
     }
@@ -105,7 +105,7 @@ void send_RAW_RC(struct sp_port * multiwii, uint16_t * data){
         printf("Writing Error");
     }
     
-    printf("SEND:\t$M<, size %d, command %d, crc %d\n", size, command, crc);
+    //printf("SEND:\t$M<, size %d, command %d, crc %d\n", size, command, crc);
     sp_drain(multiwii);//wait for data to be sent
 }
 

@@ -24,7 +24,7 @@ int main(){
     uint16_t * rc_data;
     rc_data = ( uint16_t *)(malloc(sizeof(uint16_t)*8));
     rc_data[0] = 1500;
-    rc_data[1] = 1400;
+    rc_data[1] = 1000;
     rc_data[2] = 1300;
     rc_data[3] = 1200;
     rc_data[4] = 1100;
@@ -36,6 +36,7 @@ int main(){
         send_RAW_RC(multiwii,rc_data);
         send_request(multiwii,105);
         read_response(multiwii);
+        rc_data[1]=i+1000;
     }
     free(rc_data);
     //Program logic
