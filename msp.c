@@ -1,5 +1,6 @@
 #include "msp.h"
 
+
 void read_response(struct sp_port * multiwii){
     if(sp_input_waiting(multiwii)==0){
         return;
@@ -75,33 +76,49 @@ void send_request(struct sp_port * multiwii, uint8_t code_in){
     //sp_drain(multiwii);//wait for data to be sent
 }
 
-void send_RAW_RC(struct sp_port * multiwii, uint16_t * data){
-    uint8_t size = 16;
-    uint8_t command = 200;
-    uint8_t crc = 0;
-    crc ^= size;
-    crc ^= command;
-    int i = 0;
-    for(; i<8;i++){
-        crc ^= (data[i]>>8);
-        crc ^= (data[i] & 0x00ff);
-    }
-
+void send_header(struct sp_port * multiwii, uint8_t size, uint8_t command){
     int a = sp_blocking_write(multiwii,(char *)"$",1,0);
     int b = sp_blocking_write(multiwii,(char *)"M",1,0);
     int c = sp_blocking_write(multiwii,(char *)"<",1,0);
     int d = sp_blocking_write(multiwii, &size, 1,0);
     int e = sp_blocking_write(multiwii, &command, 1,0);
+    if(a<0 || b<0 || c<0 ||d<0 ||e<0){
+        printf("writing error");
+    }
+
+}
+
+void send_RAW_RC(struct sp_port * multiwii, uint16_t * data){
+    uint8_t size = 16;
+    uint8_t command = 200;
+    uint8_t crc = 0;
+
+    //need to XOR every byte. Must XOR both bytes of uint16_t
+    crc ^= size;
+    crc ^= command;
+    int i = 0;
+    for(; i<8;i++){
+        crc ^= (data[i]>>8);//XOR left byte
+        crc ^= (data[i] & 0x00ff);//XOR right byte
+    }
+    
+    send_header(multiwii, size, command);
+    //int a = sp_blocking_write(multiwii,(char *)"$",1,0);
+    //int b = sp_blocking_write(multiwii,(char *)"M",1,0);
+    //int c = sp_blocking_write(multiwii,(char *)"<",1,0);
+    //int d = sp_blocking_write(multiwii, &size, 1,0);
+    //int e = sp_blocking_write(multiwii, &command, 1,0);
     int f = 0;
     for(i = 0; i< 8; i++){
         f = sp_blocking_write(multiwii,&(data[i]),2,0);
-        if (f<0)
+        if (f<0){
             break;
+	}
     }
 
     int g = sp_blocking_write(multiwii, &crc, 1,0);
 
-    if(a<0 || b<0 || c<0 ||d<0 ||e<0||f<0 || g <0){
+    if(f<0 || g <0){
         printf("Writing Error");
     }
     

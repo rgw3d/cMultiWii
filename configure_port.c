@@ -2,7 +2,9 @@
 
 struct serial_port_config sp_config= { //initilizing config data
     .port_name = "/dev/ttyUSB0",
-    //if you change the length of the string, change the length o the char array in the defining struct
+    //if you change the length of the string, change the length of the char array in configure_port.h
+    //Yes I know that is not a good solution
+    //But too bad
     .baudrate = 115200,
     .bits = 8,
     //.flow = SP_FLOWCONTROL_NONE,

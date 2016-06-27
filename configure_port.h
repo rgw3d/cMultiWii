@@ -2,7 +2,7 @@
 #define CONFIGURE_PORT_MULTIWII
 
 #include <libserialport.h>
-
+#include <stdio.h>
 
 struct serial_port_config{ //Config data
     char port_name[13];//change this if different port name length

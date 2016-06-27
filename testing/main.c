@@ -1,4 +1,4 @@
-#include "msp.h"
+#include "../msp.h"
 
 int main(){
     struct sp_port * multiwii;
